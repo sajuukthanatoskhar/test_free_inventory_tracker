@@ -31,4 +31,16 @@ def test_return_number_of_fits():
     """
     assert True
 
-def test_
+def test_get_global_fit_multiplie:
+    assert True
+
+
+def test_get_global_material_multiplie:
+    assert True
+
+
+def test_test_global_fit_multiplier_for_fits:
+    assert True
+
+def test_get_global_material_multiplier:
+    assert True
