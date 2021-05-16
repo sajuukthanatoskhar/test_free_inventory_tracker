@@ -41,7 +41,7 @@ def test_return_number_of_fits():
     assert False
 
 
-def test_get_global_fit_multiplie():
+def test_get_global_fit_multiplier():
     """
     Gets the global fit multiplier
     :return:
@@ -49,7 +49,7 @@ def test_get_global_fit_multiplie():
     assert False
 
 
-def test_get_global_material_multiplie():
+def test_get_global_material_multiplier():
     """
     Tests the getting of the global material multiplier
     :return:

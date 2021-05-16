@@ -49,3 +49,27 @@ DELAY : This can be manually done and put into a .fit file
 
 
 - return which industry jobs to run to reach inventory targets
+
+
+# How to setup
+
+- Folder (Station Name, must end with "_station")
+    - Contains the following:
+        - stationname.cfg
+        - station_hangers_containers_name.hgr  (can be 1 or many)
+
+
+## Config file
+Must follow this format
+Must only be one per folder
+Name
+Global Fitting Multiplier
+Global Material Multiplier
+
+ex:
+
+# start cfg file
+T5ZI Keepster
+1.0
+1.5
+#

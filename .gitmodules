@@ -1,3 +1,6 @@
 [submodule "eve_fits_itemiser"]
 	path = eve_fits_itemiser
 	url = https://github.com/sajuukthanatoskhar/eve_fits_itemiser.git
+[submodule "fuzzworks_bpos"]
+	path = fuzzworks_bpos
+	url = https://github.com/sajuukthanatoskhar/fuzzworks_bpos.git
