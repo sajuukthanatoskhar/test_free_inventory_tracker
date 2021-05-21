@@ -1,5 +1,9 @@
+import datetime
+import json
 import os
 import locale
+from typing import Type
+
 locale.setlocale(locale.LC_NUMERIC, "English")
 import os, sys, csv
 
@@ -24,8 +28,16 @@ class hangar_item:
     Hangar item in a hangar or container
     """
 
-    def __init__(self, csv_data):
-        self.name, self.qty, self.category, self.volume, self.isk_worth = self.populate_data(csv_data)
+    def __init__(self, copy_paste_data=None, file_data=None):
+        if copy_paste_data:
+            self.name, self.qty, self.category, self.volume, self.isk_worth = self.populate_data(copy_paste_data)
+            return
+        elif file_data:
+            self.name = file_data['name']
+            self.quantity = file_data['quantity']
+            self.category = file_data['category']
+            self.volume = file_data['volume']
+            self.value = file_data['value']
 
     def populate_data(self, inputted_csv_data: str) -> (str, str, float, float):
         """
@@ -39,7 +51,7 @@ class hangar_item:
         if line[1] in ["", None]:
             line[1] = int(1)
         else:
-            line[1] = float(line[1].replace(',',''))
+            line[1] = float(line[1].replace(',', ''))
 
         for index in range(3, 5):
             if line[index].endswith(common_endings_for_string_input[index]):
@@ -49,10 +61,19 @@ class hangar_item:
 
 
 class storage_area:
-    def __init__(self, file):
-        self.contained_items = [hangar_item]
+    def __init__(self, file=None):
+        self.date_updated = datetime.datetime.now()
+        self.contained_items = []
         self.name = ""
         self.is_hangar = ""
+
+        if file:
+            self.name = file['name']
+            self.is_hangar = bool(file['is_hangar'])
+            self.date_updated = file['date_updated']
+            for item in file['contained_items']:
+                self.contained_items.append(hangar_item(file_data=item))
+            return
 
         while True:
             self.is_hangar = input("Is it a hangar? Y/N ?> ")
@@ -68,11 +89,8 @@ class storage_area:
         self.name = input("Name of storage area, if container, make sure you name it according to the \n"
                           "container, case sensitive!\n ?> ")
 
-        contents: list
-        contents = input(
-            "\nInput the copy paste of the hangar using 'list' view in EVE to retain tab characters").split('\n')
-
-        for line in contents:
+        for line in input(
+                "\nInput the copy paste of the hangar using 'list' view in EVE to retain tab characters").split('\n'):
             self.contained_items.append(hangar_item(line))
 
     def get_number_of_contained_items(self):
@@ -81,61 +99,42 @@ class storage_area:
 
 class config_file_c:
     def __init__(self, data):
-        if len(data) != 3:
-            raise IndexError('Length Should be 3')
+        if len(data) != 2:
+            raise IndexError('Length Should be 2')
 
-        self.Global_Fitting_Multiplier = data[0]
-        self.Global_Material_Multiplier = data[1]
-        self.name = data[2]
+        self.Global_Fitting_Multiplier = data["Global_Fitting_Multiplier"]
+        self.Global_Material_Multiplier = data["Global_Material_Multiplier"]
 
 
 class test_free_station:
-    def __init__(self, folder: str):
-
-        # self.Global_Fitting_Multiplier = 1.0
-        # self.Global_Material_Multiplier = 1.0
-        self.name = ""
-        self.folder = folder
-        self.config_file: config_file_c
-        self.config_file = self.config_setup(folder)
-        self.hangars = [storage_area]
-
-    def config_setup(self, folder: str) -> config_file_c:
-        # do things
-        dir_contents = os.listdir()
-        config_file = None
-        for file_f in dir_contents:
-            if file_f.endswith('.cfg') and self.no_of_cfg_files(dir_contents) == 1:
-                try:
-                    config_file = open(self.folder + file_f, 'r')
-                    break
-                except FileNotFoundError:
-                    print("File Not Found")
-                    sys.exit(2)
-
-        if not config_file:
-            sys.exit(2)
-
-        return config_file_c(config_file.readlines())
+    def __init__(self, data: dict):
+        self.station = data['station']
+        self.config: config_file_c
+        self.config = config_file_c(data['config'])
+        self.hangars = []
+        self.parse_hangars(data['hangars'])
 
     def populate_from_hangars_containers(self):
         pass
 
-    def no_of_cfg_files(self, directory_contents: [str]) -> int:
-        """
-        Just checks that there is only one config file
-        :param directory_contents: directory contents of folder
-        :return: number of counters (should only be int('1')
-        """
-        counter = 0
-        for files in directory_contents:
-            if files.endswith('.cfg'):
-                counter += 1
-
-        if counter > 1:
-            raise ValueError("Too many config files")
-
-        return counter
+    def parse_hangars(self, hangars: dict):
+        for hangar in hangars:
+            self.hangars.append(storage_area(hangar))
+    # def no_of_cfg_files(self, directory_contents: [str]) -> int:
+    #     """
+    #     Just checks that there is only one config file
+    #     :param directory_contents: directory contents of folder
+    #     :return: number of counters (should only be int('1')
+    #     """
+    #     counter = 0
+    #     for files in directory_contents:
+    #         if files.endswith('.cfg'):
+    #             counter += 1
+    #
+    #     if counter > 1:
+    #         raise ValueError("Too many config files")
+    #
+    #     return counter
 
 
 class test_free_inventory:
@@ -145,14 +144,73 @@ class test_free_inventory:
     """
 
     def __init__(self):
-        self.stations: [test_free_station]
-        self.stations = None
+        self.stations = []
 
-    def list_stations(self):
+    def list_stations(self) -> None:
+        self.find_station_files()
+        print(self.stations, sep='\n')
+        return
+
+    def update_station(self) -> None:
+        """
+        Updates a station
+        :return:
+        """
+        self.find_station_files()
+        station_list = []
+        print("Choose which station to update")
+        individual_station: test_free_station
+        for individual_station in self.stations:
+            station_list.append(individual_station)
+            print("{} - {} station".format(str(len(station_list)), str(individual_station.name)))
+
+    def make_new_station(self) -> None:
+        """
+        Makes a new station
+        User has to do some input
+        Saves to *.stn file
+        :return:
+        """
         pass
 
-    def update_station(self):
-        pass
+    def find_station_files(self) -> None:
+        for files_to_open in self.get_stn_files():
+            self.stations.append(self.parse_stn_file(files_to_open))
 
-    def make_new_station(self):
-        pass
+    def get_stn_files(self) -> [str]:
+        """
+        Gets the *.stn files
+        :return:
+        """
+        station_file_list = ["./stations/" + station for station in os.listdir("./stations")]
+        return ["./stations/" + station for station in os.listdir("./stations")]
+
+    def parse_stn_file(self, station: test_free_station) -> test_free_station:
+        """
+        Parses a station file
+        """
+        with open(station, 'r') as file:
+            t_f_station = test_free_station(json.load(file))
+        return t_f_station
+
+    def save_stations_to_json_file(self):
+        """
+        Saves each station to a json file
+        :return:
+        """
+        # for
+
+        station:test_free_station
+        for station in self.stations:
+
+            jsonjson = station.__dict__
+            jsonjson['config'] = jsonjson['config'].__dict__
+
+            for count in range(0, len(jsonjson['hangars'])):
+                jsonjson['hangars'][count] = jsonjson['hangars'][count].__dict__
+                item_list = jsonjson['hangars'][count]['contained_items']
+                for countcount in range(0, len(item_list)):
+                    item_list[countcount] = item_list[countcount].__dict__
+
+            with open('./stations/demo.stn', 'w') as outfile:
+                json.dump(jsonjson, outfile)

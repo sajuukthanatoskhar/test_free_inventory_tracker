@@ -29,7 +29,8 @@ if __name__ == '__main__':
         if choice == '3':
             test_free_main_hq.make_new_station()
 
-
+        if choice == '4':
+            sys.exit(0)
 
 
 
