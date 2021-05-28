@@ -2,6 +2,7 @@ import datetime
 import json
 import os
 import locale
+import pprint
 from typing import Type
 
 locale.setlocale(locale.LC_NUMERIC, "English")
@@ -30,7 +31,7 @@ class hangar_item:
 
     def __init__(self, copy_paste_data=None, file_data=None):
         if copy_paste_data:
-            self.name, self.qty, self.category, self.volume, self.isk_worth = self.populate_data(copy_paste_data)
+            self.name, self.quantity, self.category, self.volume, self.isk_worth = self.populate_data(copy_paste_data)
             return
         elif file_data:
             self.name = file_data['name']
@@ -89,12 +90,25 @@ class storage_area:
         self.name = input("Name of storage area, if container, make sure you name it according to the \n"
                           "container, case sensitive!\n ?> ")
 
-        for line in input(
-                "\nInput the copy paste of the hangar using 'list' view in EVE to retain tab characters").split('\n'):
-            self.contained_items.append(hangar_item(line))
+        self.input_hangar_items()
 
     def get_number_of_contained_items(self):
         return len(self.contained_items)
+
+    def input_hangar_items(self):
+        import easygui
+        self.contained_items.clear()
+        hangar_list = []
+
+        # print("Enter/Paste your content. Ctrl-D or Ctrl-Z ( windows ) to save it.\nInput the copy paste of the hangar using 'list' view in EVE to retain tab characters")
+        # hangar_list.append(input("\nInput the copy paste of the hangar using 'list' view in EVE to retain tab characters").split('\n'))
+        contents = []
+
+        lines = easygui.textbox(
+            msg="Input the copy paste of the hangar using 'list' view in EVE to retain tab characters\nColumns must be (Name, Quantity, Group, Volume, Est Price)").split(
+            '\n')
+        for line in lines:
+            self.contained_items.append(hangar_item(copy_paste_data=line))
 
 
 class config_file_c:
@@ -105,21 +119,31 @@ class config_file_c:
         self.Global_Fitting_Multiplier = data["Global_Fitting_Multiplier"]
         self.Global_Material_Multiplier = data["Global_Material_Multiplier"]
 
+    def update_GFM(self):
+
+        self.Global_Fitting_Multiplier = float(input("What is the value for the Global Fitting Multiplier"))
+
+    def update_GFF(self):
+        self.Global_Material_Multiplier = float(input("What is the value for the Global Material Multiplier"))
 
 class test_free_station:
     def __init__(self, data: dict):
         self.station = data['station']
         self.config: config_file_c
         self.config = config_file_c(data['config'])
+        self.hangars: [storage_area]
         self.hangars = []
         self.parse_hangars(data['hangars'])
 
     def populate_from_hangars_containers(self):
         pass
 
+
+
     def parse_hangars(self, hangars: dict):
         for hangar in hangars:
             self.hangars.append(storage_area(hangar))
+
     # def no_of_cfg_files(self, directory_contents: [str]) -> int:
     #     """
     #     Just checks that there is only one config file
@@ -135,6 +159,73 @@ class test_free_station:
     #         raise ValueError("Too many config files")
     #
     #     return counter
+    def update_hangars_config(self) -> None:
+        """
+        Gives user choice of updating hangars or config
+        :return: None
+        """
+        # choose between updating hangars or config
+
+        while True:
+            try:
+                choice = int(input("1. Update Hangar\n2. Update Config\n3. Return\n $> "))
+                if choice in [1, 2, 3]:
+                    if choice == 1:
+                        self.update_hangars()  # todo
+                    if choice == 2:
+                        self.update_config()  # todo
+                    if choice == 3:
+                        return
+                else:
+                    print("Must be 1,2,3")
+            except EOFError:
+                choice = int(input("1. Update Hangar\n2. Update Config\n3. Return2\n $> "))
+
+    def update_hangars(self) -> None:
+        """
+        Update Hangars
+        :return: None
+        """
+        choice_not_made = True
+        while choice_not_made:
+            for index in range(0, len(self.hangars)):
+                print("{}. {}".format(index, self.hangars[index]))
+
+            choice = int(input("which hangar is being updated? (0, {}) \n >$ ".format(len(self.hangars) - 1)))
+            if choice in range(0, len(self.hangars)):
+                choice_not_made = False
+
+            self.hangars[choice].input_hangar_items()
+
+    def update_config(self):
+        """
+        Update Config
+        :return: None
+        """
+        choice_not_made = True
+
+        while choice_not_made:
+            for index in range(0, len(self.hangars)):
+                print("{}. {}".format(index, self.hangars[index]))
+            choice: int
+            choice = int(input("which hangar is being updated? (0, {}) \n >$ ".format(len(self.hangars))))
+            if choice in range(0, len(self.hangars)):
+                choice_not_made = False
+
+        choice_not_made: bool = True
+        while choice_not_made:
+            print("1. Global Fitting Modifier ({})".format(self.config.Global_Fitting_Multiplier))
+            print("2. Global Material Modifier ({})".format(self.config.Global_Material_Multiplier))
+
+            choice = input("Which modifier to change? >$ ")
+
+            if int(choice) in [1, 2]:
+                choice_not_made = False
+
+        if int(choice) == 1:
+            self.config.Global_Fitting_Multiplier = float(input("Global Fitting Multiplier set to what? >$ "))
+        if int(choice) == 2:
+            self.config.Global_Material_Multiplier = float(input("Global Material Multiplier set to what? >$ "))
 
 
 class test_free_inventory:
@@ -145,10 +236,16 @@ class test_free_inventory:
 
     def __init__(self):
         self.stations = []
+        self.find_station_files()
 
     def list_stations(self) -> None:
-        self.find_station_files()
-        print(self.stations, sep='\n')
+        station: test_free_station
+        for station in self.stations:
+            print("Name of Station : {}".format(station.station))
+            print("Global Fitting Modifier : {}".format(
+                station.config.Global_Fitting_Multiplier))
+            print("Global Material Modifier : {}\n".format(
+                station.config.Global_Material_Multiplier))
         return
 
     def update_station(self) -> None:
@@ -156,13 +253,13 @@ class test_free_inventory:
         Updates a station
         :return:
         """
-        self.find_station_files()
-        station_list = []
         print("Choose which station to update")
-        individual_station: test_free_station
-        for individual_station in self.stations:
-            station_list.append(individual_station)
-            print("{} - {} station".format(str(len(station_list)), str(individual_station.name)))
+
+        for i in range(0, len(self.stations)):
+            print("{}\t{}".format(i, self.stations[i].station))
+        choice = int(input("Make choice for station >$ "))
+        if 0 <= choice < len(self.stations):
+            self.stations[choice].update_hangars_config()
 
     def make_new_station(self) -> None:
         """
@@ -171,7 +268,24 @@ class test_free_inventory:
         Saves to *.stn file
         :return:
         """
-        pass
+        station_name = input("Name of Station?")
+        station_dict = {'station' : station_name,
+                'config' : config_file_c({
+                    "Global_Fitting_Multiplier" : float(input("What is global fitting multiplier?")),
+                    "Global_Material_Multiplier" : float(input("What is global material multiplier?")),
+
+                }),
+                'hangars' : []
+                }
+
+
+
+        new_station = test_free_station(station_dict)
+        self.stations.append(new_station)
+
+
+
+
 
     def find_station_files(self) -> None:
         for files_to_open in self.get_stn_files():
@@ -185,7 +299,7 @@ class test_free_inventory:
         station_file_list = ["./stations/" + station for station in os.listdir("./stations")]
         return ["./stations/" + station for station in os.listdir("./stations")]
 
-    def parse_stn_file(self, station: test_free_station) -> test_free_station:
+    def parse_stn_file(self, station: str) -> test_free_station:
         """
         Parses a station file
         """
@@ -198,9 +312,7 @@ class test_free_inventory:
         Saves each station to a json file
         :return:
         """
-        # for
-
-        station:test_free_station
+        station: test_free_station
         for station in self.stations:
 
             jsonjson = station.__dict__
@@ -214,3 +326,6 @@ class test_free_inventory:
 
             with open('./stations/demo.stn', 'w') as outfile:
                 json.dump(jsonjson, outfile)
+
+    def create_new_station_hangar(self):
+        pass

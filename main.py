@@ -20,16 +20,24 @@ if __name__ == '__main__':
             print("Error")
             continue
 
+        print("Loading Stations")
+
+
+
         if choice == '1':
             test_free_main_hq.list_stations()
 
         if choice == '2':
             test_free_main_hq.update_station()
+            test_free_main_hq.save_stations_to_json_file()
 
         if choice == '3':
             test_free_main_hq.make_new_station()
 
         if choice == '4':
+            test_free_main_hq.create_new_station_hangar()
+
+        if choice == '5':
             sys.exit(0)
 
 
