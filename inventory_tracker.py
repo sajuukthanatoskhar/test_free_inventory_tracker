@@ -120,11 +120,11 @@ class config_file_c:
         self.Global_Material_Multiplier = data["Global_Material_Multiplier"]
 
     def update_GFM(self):
-
         self.Global_Fitting_Multiplier = float(input("What is the value for the Global Fitting Multiplier"))
 
     def update_GFF(self):
         self.Global_Material_Multiplier = float(input("What is the value for the Global Material Multiplier"))
+
 
 class test_free_station:
     def __init__(self, data: dict):
@@ -135,10 +135,11 @@ class test_free_station:
         self.hangars = []
         self.parse_hangars(data['hangars'])
 
+        if len(self.hangars) < 1:
+
+
     def populate_from_hangars_containers(self):
         pass
-
-
 
     def parse_hangars(self, hangars: dict):
         for hangar in hangars:
@@ -269,23 +270,17 @@ class test_free_inventory:
         :return:
         """
         station_name = input("Name of Station?")
-        station_dict = {'station' : station_name,
-                'config' : config_file_c({
-                    "Global_Fitting_Multiplier" : float(input("What is global fitting multiplier?")),
-                    "Global_Material_Multiplier" : float(input("What is global material multiplier?")),
+        station_dict = {'station': station_name,
+                        'config': {
+                            "Global_Fitting_Multiplier": float(input("What is global fitting multiplier?")),
+                            "Global_Material_Multiplier": float(input("What is global material multiplier?")),
 
-                }),
-                'hangars' : []
-                }
-
-
+                        },
+                        'hangars': []
+                        }
 
         new_station = test_free_station(station_dict)
         self.stations.append(new_station)
-
-
-
-
 
     def find_station_files(self) -> None:
         for files_to_open in self.get_stn_files():

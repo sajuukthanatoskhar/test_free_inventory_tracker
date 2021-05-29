@@ -13,7 +13,8 @@ if __name__ == '__main__':
           "1.\t  List stations and their details - Shows last update\n"
           "2.\t  Update station\n"
           "3.\t  Make New Station\n"
-              "4.\t Quit\n")
+              "4.\t  Make New Hangar\n"
+              "5.\t Quit\n")
         choice = input(" Choose Now $>")
 
         if int(choice) not in choice_list:
