@@ -31,7 +31,7 @@ class hangar_item:
 
     def __init__(self, copy_paste_data=None, file_data=None):
         if copy_paste_data:
-            self.name, self.quantity, self.category, self.volume, self.isk_worth = self.populate_data(copy_paste_data)
+            self.name, self.quantity, self.category, self.volume, self.value = self.populate_data(copy_paste_data)
             return
         elif file_data:
             self.name = file_data['name']
@@ -62,11 +62,11 @@ class hangar_item:
 
 
 class storage_area:
-    def __init__(self, file=None):
+    def __init__(self, file: dict = None, is_hangar=None):
         self.date_updated = datetime.datetime.now()
         self.contained_items = []
         self.name = ""
-        self.is_hangar = ""
+        self.is_hangar = None
 
         if file:
             self.name = file['name']
@@ -77,8 +77,9 @@ class storage_area:
             return
 
         while True:
-            self.is_hangar = input("Is it a hangar? Y/N ?> ")
-            if self.is_hangar is 'Y' or 'N':
+            if not self.is_hangar:
+                self.is_hangar = input("Is it a hangar? Y/N ?> ")
+            if self.is_hangar is 'Y' or self.is_hangar is 'N':
                 if self.is_hangar == 'Y':
                     self.is_hangar = True
                 else:
@@ -110,6 +111,18 @@ class storage_area:
         for line in lines:
             self.contained_items.append(hangar_item(copy_paste_data=line))
 
+    def display_all_items_in_hangar(self) -> None:
+        """
+        Returns all items in a hangar
+        :return:
+        """
+        item : hangar_item
+
+
+        for item in self.contained_items:
+            print("{}\t{}\t{}\t{}\t{}".format(item.name, item.quantity, item.category, item.value, item.volume))
+        return
+
 
 class config_file_c:
     def __init__(self, data):
@@ -136,30 +149,15 @@ class test_free_station:
         self.parse_hangars(data['hangars'])
 
         if len(self.hangars) < 1:
-
+            self.hangars.append(storage_area())
 
     def populate_from_hangars_containers(self):
         pass
 
     def parse_hangars(self, hangars: dict):
         for hangar in hangars:
-            self.hangars.append(storage_area(hangar))
+            self.hangars.append(storage_area(file=hangar))
 
-    # def no_of_cfg_files(self, directory_contents: [str]) -> int:
-    #     """
-    #     Just checks that there is only one config file
-    #     :param directory_contents: directory contents of folder
-    #     :return: number of counters (should only be int('1')
-    #     """
-    #     counter = 0
-    #     for files in directory_contents:
-    #         if files.endswith('.cfg'):
-    #             counter += 1
-    #
-    #     if counter > 1:
-    #         raise ValueError("Too many config files")
-    #
-    #     return counter
     def update_hangars_config(self) -> None:
         """
         Gives user choice of updating hangars or config
@@ -190,7 +188,7 @@ class test_free_station:
         choice_not_made = True
         while choice_not_made:
             for index in range(0, len(self.hangars)):
-                print("{}. {}".format(index, self.hangars[index]))
+                print("{}. {}".format(index, self.hangars[index].name))
 
             choice = int(input("which hangar is being updated? (0, {}) \n >$ ".format(len(self.hangars) - 1)))
             if choice in range(0, len(self.hangars)):
@@ -214,6 +212,7 @@ class test_free_station:
                 choice_not_made = False
 
         choice_not_made: bool = True
+        choice = None
         while choice_not_made:
             print("1. Global Fitting Modifier ({})".format(self.config.Global_Fitting_Multiplier))
             print("2. Global Material Modifier ({})".format(self.config.Global_Material_Multiplier))
@@ -227,6 +226,13 @@ class test_free_station:
             self.config.Global_Fitting_Multiplier = float(input("Global Fitting Multiplier set to what? >$ "))
         if int(choice) == 2:
             self.config.Global_Material_Multiplier = float(input("Global Material Multiplier set to what? >$ "))
+
+    def menu_choose_hangar(self) -> storage_area:
+        for i in range(0, len(self.hangars)):
+            print("{}\t{}".format(i, self.hangars[i].name))
+        choice = int(input("Make choice for station >$ "))
+        if 0 <= choice < len(self.hangars):
+            return self.hangars[choice]
 
 
 class test_free_inventory:
@@ -291,13 +297,15 @@ class test_free_inventory:
         Gets the *.stn files
         :return:
         """
-        station_file_list = ["./stations/" + station for station in os.listdir("./stations")]
         return ["./stations/" + station for station in os.listdir("./stations")]
 
     def parse_stn_file(self, station: str) -> test_free_station:
         """
-        Parses a station file
+        Parses a *.stn file
+        :param station:
+        :return:
         """
+
         with open(station, 'r') as file:
             t_f_station = test_free_station(json.load(file))
         return t_f_station
@@ -319,8 +327,27 @@ class test_free_inventory:
                 for countcount in range(0, len(item_list)):
                     item_list[countcount] = item_list[countcount].__dict__
 
-            with open('./stations/demo.stn', 'w') as outfile:
+            with open('./stations/{}.stn'.format(station.station), 'w') as outfile:
                 json.dump(jsonjson, outfile)
 
     def create_new_station_hangar(self):
         pass
+
+    def get_materials_for_items_in_hangar(self):
+        self.menu_choose_station()
+
+    def display_and_calculate_materials(self):
+        self.menu_choose_station()
+
+    def display_hangar_items(self):
+        pass
+
+    def menu_choose_station(self) -> test_free_station:
+        for i in range(0, len(self.stations)):
+            print("{}\t{}".format(i, self.stations[i].station))
+        choice = int(input("Make choice for station >$ "))
+        if 0 <= choice < len(self.stations):
+            return self.stations[choice]
+
+    def display_items_from_hangar(self):
+        self.menu_choose_station().menu_choose_hangar().display_all_items_in_hangar()
