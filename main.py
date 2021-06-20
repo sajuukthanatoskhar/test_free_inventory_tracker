@@ -41,8 +41,10 @@ if __name__ == '__main__':
                 test_free_main_hq.save_stations_to_json_file()
             if choice == '3':
                 test_free_main_hq.make_new_station()
+                test_free_main_hq.save_stations_to_json_file()
             if choice == '4':
                 test_free_main_hq.create_new_station_hangar()
+                test_free_main_hq.save_stations_to_json_file()
             if choice == '5':
                 test_free_main_hq.get_materials_for_items_in_hangar()
             if choice == '6': # Get materials

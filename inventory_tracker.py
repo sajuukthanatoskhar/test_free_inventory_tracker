@@ -61,7 +61,7 @@ class hangar_item:
         for index in range(3, 5):
             if line[index].endswith(common_endings_for_string_input[index]):
                 line[index] = float(locale.atof(rchop(line[index], common_endings_for_string_input[index])))
-
+        # todo: Kevin Spacey's Capsule
         return str(line[0]), int(line[1]), str(line[2]), float(line[3]), float(line[4])
 
     def get_fit(self) -> list:
@@ -199,6 +199,7 @@ class test_free_station:
         :return: None
         """
         choice_not_made = True
+        print("Choose the relevant hangar or container (if possible)")
         while choice_not_made:
             for index in range(0, len(self.hangars)):
                 print("{}. {}".format(index, self.hangars[index].name))
@@ -235,7 +236,7 @@ class test_free_station:
 
             if int(choice) in [1, 2]:
                 choice_not_made = False
-
+        # todo: error checking/handling/exception
         if int(choice) == 1:
             self.config.Global_Fitting_Multiplier = float(input("Global Fitting Multiplier set to what? >$ "))
         if int(choice) == 2:
