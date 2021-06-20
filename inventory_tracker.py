@@ -7,6 +7,10 @@ from typing import Type
 
 locale.setlocale(locale.LC_NUMERIC, "English")
 import os, sys, csv
+from fuzzworks_bpos import fuzzworks
+from eve_fits_itemiser import fit_translator
+
+ship_type_list = []
 
 allowed_true_bool_inputs = ["y", "Y", 'yes']
 allowed_false_bool_inputs = ['n', "N", 'no']
@@ -59,6 +63,10 @@ class hangar_item:
                 line[index] = float(locale.atof(rchop(line[index], common_endings_for_string_input[index])))
 
         return str(line[0]), int(line[1]), str(line[2]), float(line[3]), float(line[4])
+
+    def get_fit(self) -> list:
+        # Get fit from file
+        pass
 
 
 class storage_area:
@@ -116,12 +124,14 @@ class storage_area:
         Returns all items in a hangar
         :return:
         """
-        item : hangar_item
-
+        item: hangar_item
 
         for item in self.contained_items:
             print("{}\t{}\t{}\t{}\t{}".format(item.name, item.quantity, item.category, item.value, item.volume))
         return
+
+    def update_date_updated(self):
+        self.date_updated = datetime.datetime.now()
 
 
 class config_file_c:
@@ -141,13 +151,14 @@ class config_file_c:
 
 class test_free_station:
     def __init__(self, data: dict):
-        self.station = data['station']
+        self.station = data['station'] # name of station
         self.config: config_file_c
         self.config = config_file_c(data['config'])
         self.hangars: [storage_area]
         self.hangars = []
         self.parse_hangars(data['hangars'])
-
+        self.fits_required: dict
+        self.fits_required = data.get('fits_required', {})
         if len(self.hangars) < 1:
             self.hangars.append(storage_area())
 
@@ -171,13 +182,15 @@ class test_free_station:
                 if choice in [1, 2, 3]:
                     if choice == 1:
                         self.update_hangars()  # todo
+
                     if choice == 2:
                         self.update_config()  # todo
+
                     if choice == 3:
                         return
                 else:
                     print("Must be 1,2,3")
-            except EOFError:
+            except EOFError or ValueError:
                 choice = int(input("1. Update Hangar\n2. Update Config\n3. Return2\n $> "))
 
     def update_hangars(self) -> None:
@@ -195,21 +208,22 @@ class test_free_station:
                 choice_not_made = False
 
             self.hangars[choice].input_hangar_items()
+            self.hangars[choice].update_date_updated()
 
     def update_config(self):
         """
         Update Config
         :return: None
         """
-        choice_not_made = True
-
-        while choice_not_made:
-            for index in range(0, len(self.hangars)):
-                print("{}. {}".format(index, self.hangars[index]))
-            choice: int
-            choice = int(input("which hangar is being updated? (0, {}) \n >$ ".format(len(self.hangars))))
-            if choice in range(0, len(self.hangars)):
-                choice_not_made = False
+        # choice_not_made = True
+        #
+        # while choice_not_made:
+        #     for index in range(0, len(self.hangars)):
+        #         print("{}. {}".format(index, self.hangars[index]))
+        #     choice: int
+        #     choice = int(input("which hangar is being updated? (0, {}) \n >$ ".format(len(self.hangars))))
+        #     if choice in range(0, len(self.hangars)):
+        #         choice_not_made = False
 
         choice_not_made: bool = True
         choice = None
@@ -233,6 +247,19 @@ class test_free_station:
         choice = int(input("Make choice for station >$ "))
         if 0 <= choice < len(self.hangars):
             return self.hangars[choice]
+
+    def get_all_items(self) -> [hangar_item]:
+        """
+        Gets all items from all hangars
+        :return: list of all items in the station
+        """
+        contained_items_list : []
+
+        hangar: storage_area
+        return [items for hangar in self.hangars for items in hangar.contained_items]
+
+    def update_date_updated(self):
+        pass
 
 
 class test_free_inventory:
@@ -282,7 +309,8 @@ class test_free_inventory:
                             "Global_Material_Multiplier": float(input("What is global material multiplier?")),
 
                         },
-                        'hangars': []
+                        'hangars': [],
+                        'fits_required': {},
                         }
 
         new_station = test_free_station(station_dict)
@@ -292,12 +320,18 @@ class test_free_inventory:
         for files_to_open in self.get_stn_files():
             self.stations.append(self.parse_stn_file(files_to_open))
 
-    def get_stn_files(self) -> [str]:
+    def get_stn_files(self, straighttomem=False) -> [str]:
         """
-        Gets the *.stn files
+        Deletes all stations in memory and then gets the ones from *.stn files
+        :type straighttomem: boolean if we want to put it directly to the object
         :return:
         """
-        return ["./stations/" + station for station in os.listdir("./stations")]
+        self.stations = []
+        if not straighttomem:
+            return ["./stations/" + station for station in os.listdir("./stations")]
+        else:
+            self.stations = ["./stations/" + station for station in os.listdir("./stations")]
+            return
 
     def parse_stn_file(self, station: str) -> test_free_station:
         """
@@ -334,10 +368,106 @@ class test_free_inventory:
         pass
 
     def get_materials_for_items_in_hangar(self):
-        self.menu_choose_station()
+        self.menu_choose_station().menu_choose_hangar().display_all_items_in_hangar()
 
-    def display_and_calculate_materials(self):
-        self.menu_choose_station()
+    def display_and_calculate_required_materials(self):
+        """
+        Calculates the required materials by:
+        1. Getting fits for the station
+        2. Getting the
+            a. Amount of fits required
+            b. Amount of reserve fits required (GFM)
+            c. Amount of materials required (Using GMM)
+        :return: None, it will print and display the results
+        """
+
+        selected_station = self.menu_choose_station()
+
+        fits_needed = selected_station.fits_required  # Get a copy of the fits from the selected station
+
+        # Get and parse required fits allocated to station
+        # Get fit
+        # Parse fit into useable fit --> qty
+
+        from math import ceil
+        req_itemised_fits_list = []
+        reserve_itemised_fits_list = []
+        materials_required_list = []
+        fit: dict
+        # Get total amount of fits required for station
+        req_itemised_fits_list = fit_translator.get_total_order(
+            fit_translator.get_order(["{}.fit {}".format(fitname, fits_needed[fitname]) for fitname in fits_needed]))
+        # Using GFM, we get the reserve fits
+        # This is on top of the required fits
+        reserve_itemised_fits_list = fit_translator.get_total_order(
+            fit_translator.get_order(["{}.fit {}".format(fitname, ceil(
+                fits_needed[fitname] * float(selected_station.config.Global_Fitting_Multiplier))) for fitname in
+                                      fits_needed]))
+
+        # Using GMM, we will get the total materials needed in order to build a new batch of ships
+        # that would replace these
+        materials_required_list = fit_translator.get_total_order(
+            fit_translator.get_order(["{}.fit {}".format(fitname, ceil(
+                fits_needed[fitname] * float(selected_station.config.Global_Fitting_Multiplier) * float(
+                    selected_station.config.Global_Material_Multiplier))) for fitname in fits_needed]))
+
+        materials_required_dictlist = []
+        item: str
+        print("Computing material requirements")
+        for item in materials_required_list:
+            # Get the blueprint details
+            material_to_be_extended_list_dict = fuzzworks.get_manufacturing_materials(
+                fuzzworks.get_blueprint_details(fuzzworks.get_single_id(item[:-1 * (len(item.split(" ")[-1]) + 1)])))
+
+            for dictitem in material_to_be_extended_list_dict:
+                dictitem['quantity'] = float(item.split(" ")[-1]) * dictitem['quantity']
+
+
+                for material_req_item in materials_required_dictlist:  # if there is a material already in the materials
+                    # required, add it in
+                    if dictitem['typeid'] == material_req_item['typeid']:
+                        material_req_item['quantity'] += dictitem['quantity']
+                        break
+                    else:
+                        continue
+                else:
+                    materials_required_dictlist.append(dictitem)  # if not, we add it in at the end
+        """End of materials section"""
+            # Save these to file
+
+        required_items_for_build = dict
+
+        with open("./required_items/{}.reqmat".format(selected_station.station), 'w') as reqmat_file:
+            reqmat_file.write("Items for station {}\n\n".format(selected_station.station))
+
+            reqmat_file.write("Required Items\n")
+            reqmat_file.write("Name:Quantity\n")
+            for req_itemised_fits in req_itemised_fits_list:
+                reqmat_file.write("{}:{}\n".format(
+                    req_itemised_fits[:-1 * (len(req_itemised_fits.split(" ")[-1]) + 1)],
+                    req_itemised_fits.split(" ")[-1]))
+
+            reqmat_file.write("\n\n\nRequired Reserve Items\n")
+            reqmat_file.write("Name:Quantity\n")
+            for req_reserved_items in reserve_itemised_fits_list:
+                reqmat_file.write("{}:{}\n".format(
+                    req_reserved_items[:-1 * (len(req_reserved_items.split(" ")[-1]) + 1)],
+                    req_reserved_items.split(" ")[-1]))
+
+            reqmat_file.write("\n\n\nRequired Materials needed\n")
+            reqmat_file.write("Name:Quantity\n")
+            for materials in materials_required_dictlist:
+                reqmat_file.write("{}:{}\n".format(
+                    materials['name'], materials['quantity']))
+
+
+
+        # Compare items with what you have vs what you should have
+        # item: hangar_item # todo add in later version
+        # for item in selected_station.get_all_items():
+        #     if item.category in ship_type_list and item.quantity == 1:
+        #         for fit_item in item.get_fit():
+        #             pass
 
     def display_hangar_items(self):
         pass
@@ -350,4 +480,4 @@ class test_free_inventory:
             return self.stations[choice]
 
     def display_items_from_hangar(self):
-        self.menu_choose_station().menu_choose_hangar().display_all_items_in_hangar()
+        station = self.menu_choose_station()
