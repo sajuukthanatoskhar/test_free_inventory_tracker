@@ -125,9 +125,11 @@ class storage_area:
         :return:
         """
         item: hangar_item
-
+        print("{:^40s}\t{:^15s}\t{:^20s}\t{:^20s}\t{:^17s}".format("item.name", "item.quantity", "item.category",
+                                                                   'item.value', "item.volume"))
         for item in self.contained_items:
-            print("{}\t{}\t{}\t{}\t{}".format(item.name, item.quantity, item.category, item.value, item.volume))
+            print("{:>40s}\t{:>15d}\t{:<20s}\t{:>20.2f}\t{:>15.2f}".format(item.name, item.quantity, item.category,
+                                                                           item.value, item.volume))
         return
 
     def update_date_updated(self):
@@ -151,7 +153,7 @@ class config_file_c:
 
 class test_free_station:
     def __init__(self, data: dict):
-        self.station = data['station'] # name of station
+        self.station = data['station']  # name of station
         self.config: config_file_c
         self.config = config_file_c(data['config'])
         self.hangars: [storage_area]
@@ -254,7 +256,7 @@ class test_free_station:
         Gets all items from all hangars
         :return: list of all items in the station
         """
-        contained_items_list : []
+        contained_items_list: []
 
         hangar: storage_area
         return [items for hangar in self.hangars for items in hangar.contained_items]
@@ -394,6 +396,7 @@ class test_free_inventory:
         req_itemised_fits_list = []
         reserve_itemised_fits_list = []
         materials_required_list = []
+
         fit: dict
         # Get total amount of fits required for station
         req_itemised_fits_list = fit_translator.get_total_order(
@@ -423,7 +426,6 @@ class test_free_inventory:
             for dictitem in material_to_be_extended_list_dict:
                 dictitem['quantity'] = float(item.split(" ")[-1]) * dictitem['quantity']
 
-
                 for material_req_item in materials_required_dictlist:  # if there is a material already in the materials
                     # required, add it in
                     if dictitem['typeid'] == material_req_item['typeid']:
@@ -434,36 +436,75 @@ class test_free_inventory:
                 else:
                     materials_required_dictlist.append(dictitem)  # if not, we add it in at the end
         """End of materials section"""
-            # Save these to file
+        # Save these to file
 
         required_items_for_build = dict
+
+        # Subtracting currently held stuff from fits needed
+
+        """******* Setting up net dictionaries *********"""
+
+        net_req_itemised_fits_dict = {}
+        net_reserve_itemised_fits_dict = {}
+        net_materials_required_dict = {}
+
+        for ind_item in req_itemised_fits_list:
+            print(ind_item)
+            key, value = fit_translator.split_item_qty(ind_item)
+            net_req_itemised_fits_dict[key] = value
+        req_itemised_fits_list = dict(net_req_itemised_fits_dict)
+        for ind_item in reserve_itemised_fits_list:
+            key, value = fit_translator.split_item_qty(ind_item)
+            net_reserve_itemised_fits_dict[key] = value
+        reserve_itemised_fits_list = dict(net_reserve_itemised_fits_dict)
+
+        net_materials_required_dict = {entry['name']: entry['quantity'] for entry in materials_required_dictlist}
+        materials_required_dictlist = dict(net_materials_required_dict)
+        """******* Finish setting up net dictionaries *********"""
+
+        materials_required_list_to_dict = {}
+        for list_item in materials_required_list:
+            materials_required_list_to_dict[list_item.split(" ")[0]] = int(list_item.split(" ")[-1])
+
+        # Compare items with what you have vs what you should have
+        stored_hangar_item: hangar_item
+        for stored_hangar_item in selected_station.get_all_items():
+            if stored_hangar_item.name in fits_needed.keys():  # fits
+                print(stored_hangar_item.quantity)
+                fits_needed[stored_hangar_item.name] -= stored_hangar_item.quantity
+            if any(stored_hangar_item.name in required_mat for required_mat in materials_required_list):  # fits
+                matching_item_names = [matched_items for matched_items in materials_required_list if
+                                       stored_hangar_item.name in matched_items]
+                for matching_ind_items in matching_item_names:
+                    k, v = fit_translator.split_item_qty(matching_ind_items)
+                    net_req_itemised_fits_dict[k] -= v
+                    net_reserve_itemised_fits_dict[k] -= v
+            if any(stored_hangar_item.name in required_mat for required_mat in net_materials_required_dict):  # fits
+                matching_item_names = [matched_items for matched_items in net_materials_required_dict if
+                                       stored_hangar_item.name in matched_items]
+                for matching_ind_items in matching_item_names:
+                    k, v = fit_translator.split_item_qty(matching_ind_items)
+                    net_materials_required_dict[k] -= v
+        # End of total hangar comparation
 
         with open("./required_items/{}.reqmat".format(selected_station.station), 'w') as reqmat_file:
             reqmat_file.write("Items for station {}\n\n".format(selected_station.station))
 
             reqmat_file.write("Required Items\n")
-            reqmat_file.write("Name:Quantity\n")
-            for req_itemised_fits in req_itemised_fits_list:
-                reqmat_file.write("{}:{}\n".format(
-                    req_itemised_fits[:-1 * (len(req_itemised_fits.split(" ")[-1]) + 1)],
-                    req_itemised_fits.split(" ")[-1]))
+            reqmat_file.write("{}:{}:{}\n".format("Name", "Net Quantity Required", "Planned Quantity Required"))
+            for key, value in net_req_itemised_fits_dict.items():
+                reqmat_file.write("{}:{}:{}\n".format(key, value, req_itemised_fits_list[key]))
 
             reqmat_file.write("\n\n\nRequired Reserve Items\n")
-            reqmat_file.write("Name:Quantity\n")
-            for req_reserved_items in reserve_itemised_fits_list:
-                reqmat_file.write("{}:{}\n".format(
-                    req_reserved_items[:-1 * (len(req_reserved_items.split(" ")[-1]) + 1)],
-                    req_reserved_items.split(" ")[-1]))
+            reqmat_file.write("{}:{}:{}\n".format("Name", "Net Quantity Required", "Planned Quantity Required"))
+            for key, value in net_reserve_itemised_fits_dict.items():
+                reqmat_file.write("{}:{}:{}\n".format(key, value, reserve_itemised_fits_list[key]))
 
             reqmat_file.write("\n\n\nRequired Materials needed\n")
-            reqmat_file.write("Name:Quantity\n")
-            for materials in materials_required_dictlist:
-                reqmat_file.write("{}:{}\n".format(
-                    materials['name'], materials['quantity']))
+            reqmat_file.write("{}:{}:{}\n".format("Name", "Net Quantity Required", "Planned Quantity Required"))
+            for key, value in net_materials_required_dict.items():
+                reqmat_file.write("{}:{}:{}\n".format(key, value, materials_required_dictlist[key]))
 
-
-
-        # Compare items with what you have vs what you should have
         # item: hangar_item # todo add in later version
         # for item in selected_station.get_all_items():
         #     if item.category in ship_type_list and item.quantity == 1:
