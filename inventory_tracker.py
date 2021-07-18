@@ -9,6 +9,7 @@ locale.setlocale(locale.LC_NUMERIC, "English")
 import os, sys, csv
 from fuzzworks_bpos import fuzzworks
 from eve_fits_itemiser import fit_translator
+import easygui
 
 ship_type_list = []
 
@@ -105,7 +106,7 @@ class storage_area:
         return len(self.contained_items)
 
     def input_hangar_items(self):
-        import easygui
+
         self.contained_items.clear()
         hangar_list = []
 
@@ -151,7 +152,11 @@ class config_file_c:
         self.Global_Material_Multiplier = float(input("What is the value for the Global Material Multiplier"))
 
 
-class test_free_station:
+# class MenuMetaClass(type):
+#     pas
+
+
+class test_free_station():
     def __init__(self, data: dict):
         self.station = data['station']  # name of station
         self.config: config_file_c
@@ -265,6 +270,11 @@ class test_free_station:
         pass
 
 
+def method_is_menu_function(f):
+    f.__is_menu_function = True
+    return f
+
+
 class test_free_inventory:
     """
     Master class for grouping all test free stations
@@ -275,7 +285,22 @@ class test_free_inventory:
         self.stations = []
         self.find_station_files()
 
+    def choose_station(self):
+        while True:
+            for i in range(0, len(self.stations)):
+                print("{}\t{}".format(i, self.stations[i].station))
+            choice = int(input("Make choice for station >$ "))
+            if 0 <= choice < len(self.stations):
+                return self.stations[choice]
+            else:
+                print("Invalid choice")
+
+    @method_is_menu_function
     def list_stations(self) -> None:
+        """List all stations and their GFM and GMM
+        :return: None
+        """
+
         station: test_free_station
         for station in self.stations:
             print("Name of Station : {}".format(station.station))
@@ -285,10 +310,49 @@ class test_free_inventory:
                 station.config.Global_Material_Multiplier))
         return
 
+    @method_is_menu_function
+    def update_fit(self, fit_exists = True) -> str:
+        """Update fits"""
+        lines = easygui.textbox(msg="Input the copy paste of the fit.  Must be EFT format.\nDon't fuck it up").split(
+            '\n')
+        fit_translator.make_fit_file(lines)
+        return fit_translator.new_get_fit_name(lines)
+
+    @method_is_menu_function
+    def update_required_fits(self, fit_name=None):
+        """Update Required Fit number"""
+        station: test_free_station = self.choose_station()
+
+        if fit_name is not None:
+            print("Fit name is {}".format(fit_name))
+        else:
+            print("What is fit name?")
+            fit_choices = [fit for fit in station.fits_required.keys()]
+            fit_name = easygui.choicebox(msg = "What is the fit name?", choices=fit_choices)
+
+        new_qty = -1
+        while type(new_qty) == int and new_qty <= -1:
+            new_qty = input("What is the new quantity needed? (Old : {})".format(station.fits_required.get(fit_name, "None")))
+        station.fits_required[fit_name] = new_qty
+        self.save_stations_to_json_file()
+        return None
+
+        # lines = easygui.textbox(
+        #     msg="Input the copy paste of the fit.  Must be EFT format").split('\n')
+        # for line in lines:
+        #     self.contained_items.append(hangar_item(copy_paste_data=line))
+
+    @method_is_menu_function
+    def create_new_fit(self) -> None:
+        """Create new fit"""
+        self.update_required_fits(fit_name= self.update_fit(fit_exists = False))
+        # self.save_stations_to_json_file() # This is not needed as it is done in updated_required
+        return None
+
+    @method_is_menu_function
     def update_station(self) -> None:
-        """
-        Updates a station
-        :return:
+        """Updates a station's GMM, GFM or Hangars
+        :return: None
         """
         print("Choose which station to update")
 
@@ -297,13 +361,16 @@ class test_free_inventory:
         choice = int(input("Make choice for station >$ "))
         if 0 <= choice < len(self.stations):
             self.stations[choice].update_hangars_config()
+        self.save_stations_to_json_file()
 
+        return
+
+    @method_is_menu_function
     def make_new_station(self) -> None:
-        """
-        Makes a new station
+        """Makes a new station
         User has to do some input
         Saves to *.stn file
-        :return:
+        :return: None
         """
         station_name = input("Name of Station?")
         station_dict = {'station': station_name,
@@ -318,6 +385,7 @@ class test_free_inventory:
 
         new_station = test_free_station(station_dict)
         self.stations.append(new_station)
+        self.save_stations_to_json_file()
 
     def find_station_files(self) -> None:
         for files_to_open in self.get_stn_files():
@@ -367,14 +435,24 @@ class test_free_inventory:
             with open('./stations/{}.stn'.format(station.station), 'w') as outfile:
                 json.dump(jsonjson, outfile)
 
+    @method_is_menu_function
     def create_new_station_hangar(self):
-        pass
-
-    def get_materials_for_items_in_hangar(self):
-        self.menu_choose_station().menu_choose_hangar().display_all_items_in_hangar()
-
-    def display_and_calculate_required_materials(self):
+        """Creates new station hangar (Not implemented)
         """
+        # New station hangar
+        self.save_stations_to_json_file()
+
+    @method_is_menu_function
+    def get_materials_for_items_in_hangar(self) -> None:
+        """Get all items in hangar
+        :return: None
+        """
+        self.menu_choose_station().menu_choose_hangar().display_all_items_in_hangar()
+        return None
+
+    @method_is_menu_function
+    def display_and_calculate_required_materials(self):
+        """Calculate and save required materials for required fits
         Calculates the required materials by:
         1. Getting fits for the station
         2. Getting the
@@ -491,19 +569,25 @@ class test_free_inventory:
             reqmat_file.write("Items for station {}\n\n".format(selected_station.station))
 
             reqmat_file.write("Required Items\n")
-            reqmat_file.write("{}:{}:{}\n".format("Name", "Net Quantity Required", "Planned Quantity Required"))
+            reqmat_file.write(
+                "{}:{}:{}:{}\n".format("Name", "Existing", "Net Quantity Required", "Planned Quantity Required"))
             for key, value in net_req_itemised_fits_dict.items():
-                reqmat_file.write("{}:{}:{}\n".format(key, value, req_itemised_fits_list[key]))
+                reqmat_file.write("{}:{}:{}:{}\n".format(key, req_itemised_fits_list[key] - value, value,
+                                                         req_itemised_fits_list[key]))
 
             reqmat_file.write("\n\n\nRequired Reserve Items\n")
-            reqmat_file.write("{}:{}:{}\n".format("Name", "Net Quantity Required", "Planned Quantity Required"))
+            reqmat_file.write(
+                "{}:{}:{}:{}\n".format("Name", "Existing", "Net Quantity Required", "Planned Quantity Required"))
             for key, value in net_reserve_itemised_fits_dict.items():
-                reqmat_file.write("{}:{}:{}\n".format(key, value, reserve_itemised_fits_list[key]))
+                reqmat_file.write("{}:{}:{}:{}\n".format(key, + reserve_itemised_fits_list[key] - value, value,
+                                                         reserve_itemised_fits_list[key]))
 
             reqmat_file.write("\n\n\nRequired Materials needed\n")
-            reqmat_file.write("{}:{}:{}\n".format("Name", "Net Quantity Required", "Planned Quantity Required"))
+            reqmat_file.write(
+                "{}:{}:{}:{}\n".format("Name", "Existing", "Net Quantity Required", "Planned Quantity Required"))
             for key, value in net_materials_required_dict.items():
-                reqmat_file.write("{}:{}:{}\n".format(key, value, materials_required_dictlist[key]))
+                reqmat_file.write("{}:{}:{}:{}\n".format(key, materials_required_dictlist[key] - value, value,
+                                                         materials_required_dictlist[key]))
 
         # item: hangar_item # todo add in later version
         # for item in selected_station.get_all_items():

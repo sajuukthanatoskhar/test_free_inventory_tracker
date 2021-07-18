@@ -2,15 +2,15 @@
 
 DELAY : This can be manually done and put into a .fit file
 - input a PYFA fitting block
-  - [TBD] Save to ****.fit
+  - [DONE] Save to ****.fit
     - Use Pyeasgygui to do this, it can do it rather well
-  - [TBD] Update ***.fit
+  - [DONE] Update ***.fit
     - Use Pyeasgygui to do this, it can do it rather well
   - [DONE] The ***.fit file is read and dealt with appropriately
 
 
 - [DONE] input a target count to keep assembled for each fit
-  - [TBD] needs a way to edit. ATM needs to be done by hand.
+  - [DONE] needs a way to edit. ATM needs to be done by hand.
     - [PROP] This will be a main menu item in the update section
       - Involve the generation of a text window using pyeasygui, which
         will then be populated with what is existing currently, then it
@@ -20,7 +20,7 @@ DELAY : This can be manually done and put into a .fit file
     - [INFO] This is in the *.stn
 - [TBD] count how many ships have the fit's name in a hangar (or text
   copied/pasted from a hangar) and compare against the target number
-  - [TBD-50%] Hangar is fetched via copy paste from game (No ESI, thank
+  - [DONE] Hangar is fetched via copy paste from game (No ESI, thank
     fuck)
     - [PROBLEM]Some parsing problems with some strings
       - [EXAMPLE]Fucking Kevin Spacey and his capsule
@@ -30,11 +30,13 @@ DELAY : This can be manually done and put into a .fit file
   - Assumption: Properly named fit will be assumed to be fit properly
   - Assumption: user will copy paste all root hangars into main.cargo
 
-- [TBD] return how many of each fit to assemble
+- [TBD-50%] return how many of each fit to assemble
+  - The program retrieves a fit and multiplies it by quantity required
+  - Program does not take into account pre-existing ships
 - [DONE] input a global fit multiplier for a packaged hull and fitting
   inventory surplus — "I want to be able to assemble this many times a
   fit's target number with my inventory on hand."
-  - [TBD-50%] Fits
+  - [DONE] Fits
     - Here is what is ready to be handed out
       - Currently have total values calculated, just need delta values
     - Here is what is ready to be fitted and then handed out
@@ -66,7 +68,7 @@ DELAY : This can be manually done and put into a .fit file
   - [REQ] Assume ME 0
 - [DONE]count how many of each material is available in a container (or
   pasted text)
-- [TBD]return materials deficits below materials target
+- [DONE]return materials deficits below materials target
 
 
 - [TBD][PRIORITY - LOW] return which industry jobs to run to reach inventory targets
