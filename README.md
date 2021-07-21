@@ -18,7 +18,7 @@ DELAY : This can be manually done and put into a .fit file
         box.
   - [DONE] Can be a config file
     - [INFO] This is in the *.stn
-- [TBD] count how many ships have the fit's name in a hangar (or text
+- [DONE] count how many ships have the fit's name in a hangar (or text
   copied/pasted from a hangar) and compare against the target number
   - [DONE] Hangar is fetched via copy paste from game (No ESI, thank
     fuck)
@@ -30,7 +30,7 @@ DELAY : This can be manually done and put into a .fit file
   - Assumption: Properly named fit will be assumed to be fit properly
   - Assumption: user will copy paste all root hangars into main.cargo
 
-- [TBD-50%] return how many of each fit to assemble
+- [DONE] return how many of each fit to assemble
   - The program retrieves a fit and multiplies it by quantity required
   - Program does not take into account pre-existing ships
 - [DONE] input a global fit multiplier for a packaged hull and fitting

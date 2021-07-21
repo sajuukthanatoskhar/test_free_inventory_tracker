@@ -156,7 +156,7 @@ class config_file_c:
 #     pas
 
 
-class test_free_station():
+class test_free_station:
     def __init__(self, data: dict):
         self.station = data['station']  # name of station
         self.config: config_file_c
@@ -566,7 +566,13 @@ class test_free_inventory:
         # End of total hangar comparation
 
         with open("./required_items/{}.reqmat".format(selected_station.station), 'w') as reqmat_file:
-            reqmat_file.write("Items for station {}\n\n".format(selected_station.station))
+
+            reqmat_file.write("Fits required to be built for station {}\n\n".format(selected_station.station))
+            reqmat_file.write("Required Items:quantity\n")
+            for key, value in fits_needed.items():
+                reqmat_file.write("{}:{}\n".format(key,value))
+
+            reqmat_file.write("\nItems for station {}\n\n".format(selected_station.station))
 
             reqmat_file.write("Required Items\n")
             reqmat_file.write(
