@@ -1,6 +1,19 @@
 # test_free_inventory_tracker
 
+Installation Guide
+1. git clone the repo
+2. git submodule init
+3. git submodule update
+
+
+Make sure you have all dependencies (if there are any)
+
+Report all bugs to the github page as issues please!
+
 DELAY : This can be manually done and put into a .fit file
+
+# Design Requirements
+
 - input a PYFA fitting block
   - [DONE] Save to ****.fit
     - Use Pyeasgygui to do this, it can do it rather well
@@ -105,6 +118,9 @@ Global Material Multiplier
 
 
 # Issues
+
+
+
 
 For output files
 - Required Items is used as a shipping tool

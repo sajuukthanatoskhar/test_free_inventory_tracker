@@ -1,0 +1,72 @@
+Fits required to be built for station T5ZI Keepster
+
+Required Items:quantity
+Test_Free_Rifter:46
+Test_Griffin:25
+
+Items for station T5ZI Keepster
+
+Required Items
+Name:Existing:Net Quantity Required:Planned Quantity Required
+Rifter:100:-50:50
+Micro Auxiliary Power Core I:200:-100:100
+Nanofiber Internal Structure I:100:-50:50
+Damage Control I:100:-50:50
+Warp Scrambler I:100:-50:50
+5MN Microwarpdrive I:150:-75:75
+Medium Shield Extender I:100:-50:50
+Small EM Shield Reinforcer I:200:-100:100
+150mm Light AutoCannon I, EMP S:300:-150:150
+Small Thermal Shield Reinforcer I:100:-50:50
+Griffin:50:-25:25
+Radar ECM I:50:-25:25
+Ladar ECM I:50:-25:25
+Magnetometric ECM I:50:-25:25
+Rocket Launcher I:100:-50:50
+Small Particle Dispersion Augmentor I:50:-25:25
+Small Particle Dispersion Projector I:100:-50:50
+Medium Azeotropic Restrained Shield Extender:50:-25:25
+Warrior I:50:-25:25
+Scourge Rocket:25000:-12500:12500
+
+
+
+Required Reserve Items
+Name:Existing:Net Quantity Required:Planned Quantity Required
+Rifter:100:0:100
+Micro Auxiliary Power Core I:200:0:200
+Nanofiber Internal Structure I:100:0:100
+Damage Control I:100:0:100
+Warp Scrambler I:100:0:100
+5MN Microwarpdrive I:150:0:150
+Medium Shield Extender I:100:0:100
+Small EM Shield Reinforcer I:200:0:200
+150mm Light AutoCannon I, EMP S:300:0:300
+Small Thermal Shield Reinforcer I:100:0:100
+Griffin:50:0:50
+Radar ECM I:50:0:50
+Ladar ECM I:50:0:50
+Magnetometric ECM I:50:0:50
+Rocket Launcher I:100:0:100
+Small Particle Dispersion Augmentor I:50:0:50
+Small Particle Dispersion Projector I:100:0:100
+Medium Azeotropic Restrained Shield Extender:50:0:50
+Warrior I:50:0:50
+Scourge Rocket:25000:0:25000
+
+
+
+Required Materials needed
+Name:Existing:Net Quantity Required:Planned Quantity Required
+Tritanium:0.0:8780200.0:8780200.0
+Pyerite:0.0:2673550.0:2673550.0
+Mexallon:0.0:632500.0:632500.0
+Isogen:0.0:122000.0:122000.0
+Nocxium:0.0:30200.0:30200.0
+Zydrine:0.0:1000.0:1000.0
+Fried Interface Circuit:0.0:1450.0:1450.0
+Malfunctioning Shield Emitter:0.0:600.0:600.0
+Charred Micro Circuit:0.0:1200.0:1200.0
+Megacyte:0.0:300.0:300.0
+Damaged Artificial Neural Network:0.0:300.0:300.0
+Tripped Power Circuit:0.0:150.0:150.0
