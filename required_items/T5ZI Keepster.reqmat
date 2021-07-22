@@ -3,21 +3,22 @@ Fits required to be built for station T5ZI Keepster
 Required Items:quantity
 Test_Free_Rifter:46
 Test_Griffin:25
+TF_Crucifier:5
 
 Items for station T5ZI Keepster
 
 Required Items
 Name:Existing:Net Quantity Required:Planned Quantity Required
 Rifter:100:-50:50
-Micro Auxiliary Power Core I:200:-100:100
+Micro Auxiliary Power Core I:210:-105:105
 Nanofiber Internal Structure I:100:-50:50
-Damage Control I:100:-50:50
+Damage Control I:110:-55:55
 Warp Scrambler I:100:-50:50
-5MN Microwarpdrive I:150:-75:75
-Medium Shield Extender I:100:-50:50
-Small EM Shield Reinforcer I:200:-100:100
+5MN Microwarpdrive I:160:-80:80
+Medium Shield Extender I:110:-55:55
+Small EM Shield Reinforcer I:210:-105:105
 150mm Light AutoCannon I, EMP S:300:-150:150
-Small Thermal Shield Reinforcer I:100:-50:50
+Small Thermal Shield Reinforcer I:110:-55:55
 Griffin:50:-25:25
 Radar ECM I:50:-25:25
 Ladar ECM I:50:-25:25
@@ -26,23 +27,33 @@ Rocket Launcher I:100:-50:50
 Small Particle Dispersion Augmentor I:50:-25:25
 Small Particle Dispersion Projector I:100:-50:50
 Medium Azeotropic Restrained Shield Extender:50:-25:25
-Warrior I:50:-25:25
+Warrior I:80:-40:40
 Scourge Rocket:25000:-12500:12500
+Crucifier:0:5:5
+Signal Amplifier I:0:5:5
+Tracking Disruptor I:0:10:10
+Small Core Defense Field Extender I:0:5:5
+125mm Gatling AutoCannon I, EMP S:0:10:10
+Hobgoblin I:0:30:30
+EMP S:0:3000:3000
+Optimal Range Disruption Script:0:10:10
+Tracking Speed Disruption Script:0:10:10
+1MN Afterburner I:0:5:5
 
 
 
 Required Reserve Items
 Name:Existing:Net Quantity Required:Planned Quantity Required
 Rifter:100:0:100
-Micro Auxiliary Power Core I:200:0:200
+Micro Auxiliary Power Core I:210:0:210
 Nanofiber Internal Structure I:100:0:100
-Damage Control I:100:0:100
+Damage Control I:110:0:110
 Warp Scrambler I:100:0:100
-5MN Microwarpdrive I:150:0:150
-Medium Shield Extender I:100:0:100
-Small EM Shield Reinforcer I:200:0:200
+5MN Microwarpdrive I:160:0:160
+Medium Shield Extender I:110:0:110
+Small EM Shield Reinforcer I:210:0:210
 150mm Light AutoCannon I, EMP S:300:0:300
-Small Thermal Shield Reinforcer I:100:0:100
+Small Thermal Shield Reinforcer I:110:0:110
 Griffin:50:0:50
 Radar ECM I:50:0:50
 Ladar ECM I:50:0:50
@@ -51,22 +62,34 @@ Rocket Launcher I:100:0:100
 Small Particle Dispersion Augmentor I:50:0:50
 Small Particle Dispersion Projector I:100:0:100
 Medium Azeotropic Restrained Shield Extender:50:0:50
-Warrior I:50:0:50
+Warrior I:80:0:80
 Scourge Rocket:25000:0:25000
+Crucifier:0:10:10
+Signal Amplifier I:0:10:10
+Tracking Disruptor I:0:20:20
+Small Core Defense Field Extender I:0:10:10
+125mm Gatling AutoCannon I, EMP S:0:20:20
+Hobgoblin I:0:60:60
+EMP S:0:6000:6000
+Optimal Range Disruption Script:0:20:20
+Tracking Speed Disruption Script:0:20:20
+1MN Afterburner I:0:10:10
 
 
 
 Required Materials needed
 Name:Existing:Net Quantity Required:Planned Quantity Required
-Tritanium:0.0:8780200.0:8780200.0
-Pyerite:0.0:2673550.0:2673550.0
-Mexallon:0.0:632500.0:632500.0
-Isogen:0.0:122000.0:122000.0
-Nocxium:0.0:30200.0:30200.0
-Zydrine:0.0:1000.0:1000.0
-Fried Interface Circuit:0.0:1450.0:1450.0
-Malfunctioning Shield Emitter:0.0:600.0:600.0
-Charred Micro Circuit:0.0:1200.0:1200.0
-Megacyte:0.0:300.0:300.0
+Tritanium:0.0:10494120.0:10494120.0
+Pyerite:0.0:2889300.0:2889300.0
+Mexallon:0.0:674830.0:674830.0
+Isogen:0.0:127870.0:127870.0
+Nocxium:0.0:38070.0:38070.0
+Zydrine:0.0:1140.0:1140.0
+Fried Interface Circuit:0.0:1510.0:1510.0
+Malfunctioning Shield Emitter:0.0:640.0:640.0
+Charred Micro Circuit:0.0:1260.0:1260.0
+Megacyte:0.0:460.0:460.0
 Damaged Artificial Neural Network:0.0:300.0:300.0
-Tripped Power Circuit:0.0:150.0:150.0
+Tripped Power Circuit:0.0:190.0:190.0
+Burned Logic Circuit:0.0:40.0:40.0
+Ward Console:0.0:20.0:20.0

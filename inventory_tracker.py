@@ -110,12 +110,14 @@ class storage_area:
         self.contained_items.clear()
         hangar_list = []
 
-        # print("Enter/Paste your content. Ctrl-D or Ctrl-Z ( windows ) to save it.\nInput the copy paste of the hangar using 'list' view in EVE to retain tab characters")
-        # hangar_list.append(input("\nInput the copy paste of the hangar using 'list' view in EVE to retain tab characters").split('\n'))
+        # print("Enter/Paste your content. Ctrl-D or Ctrl-Z ( windows ) to save it.\nInput the copy paste of the
+        # hangar using 'list' view in EVE to retain tab characters") hangar_list.append(input("\nInput the copy paste
+        # of the hangar using 'list' view in EVE to retain tab characters").split('\n'))
         contents = []
 
         lines = easygui.textbox(
-            msg="Input the copy paste of the hangar using 'list' view in EVE to retain tab characters\nColumns must be (Name, Quantity, Group, Volume, Est Price)").split(
+            msg="Input the copy paste of the hangar using 'list' view in EVE to retain tab characters\nColumns must "
+                "be (Name, Quantity, Group, Volume, Est Price)").split(
             '\n')
         for line in lines:
             self.contained_items.append(hangar_item(copy_paste_data=line))
@@ -188,10 +190,10 @@ class test_free_station:
                 choice = int(input("1. Update Hangar\n2. Update Config\n3. Return\n $> "))
                 if choice in [1, 2, 3]:
                     if choice == 1:
-                        self.update_hangars()  # todo
+                        self.update_hangars()
 
                     if choice == 2:
-                        self.update_config()  # todo
+                        self.update_config()
 
                     if choice == 3:
                         return
@@ -311,7 +313,7 @@ class test_free_inventory:
         return
 
     @method_is_menu_function
-    def update_fit(self, fit_exists = True) -> str:
+    def update_fit(self, fit_exists=True) -> str:
         """Update fits"""
         lines = easygui.textbox(msg="Input the copy paste of the fit.  Must be EFT format.\nDon't fuck it up").split(
             '\n')
@@ -328,11 +330,12 @@ class test_free_inventory:
         else:
             print("What is fit name?")
             fit_choices = [fit for fit in station.fits_required.keys()]
-            fit_name = easygui.choicebox(msg = "What is the fit name?", choices=fit_choices)
+            fit_name = easygui.choicebox(msg="What is the fit name?", choices=fit_choices)
 
         new_qty = -1
         while type(new_qty) == int and new_qty <= -1:
-            new_qty = input("What is the new quantity needed? (Old : {})".format(station.fits_required.get(fit_name, "None")))
+            new_qty = int(input(
+                "What is the new quantity needed? (Old : {})".format(station.fits_required.get(fit_name, "None"))))
         station.fits_required[fit_name] = new_qty
         self.save_stations_to_json_file()
         return None
@@ -345,7 +348,7 @@ class test_free_inventory:
     @method_is_menu_function
     def create_new_fit(self) -> None:
         """Create new fit"""
-        self.update_required_fits(fit_name= self.update_fit(fit_exists = False))
+        self.update_required_fits(fit_name=self.update_fit(fit_exists=False))
         # self.save_stations_to_json_file() # This is not needed as it is done in updated_required
         return None
 
@@ -570,7 +573,7 @@ class test_free_inventory:
             reqmat_file.write("Fits required to be built for station {}\n\n".format(selected_station.station))
             reqmat_file.write("Required Items:quantity\n")
             for key, value in fits_needed.items():
-                reqmat_file.write("{}:{}\n".format(key,value))
+                reqmat_file.write("{}:{}\n".format(key, value))
 
             reqmat_file.write("\nItems for station {}\n\n".format(selected_station.station))
 
