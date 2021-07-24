@@ -63,7 +63,18 @@ class hangar_item:
             if line[index].endswith(common_endings_for_string_input[index]):
                 line[index] = float(locale.atof(rchop(line[index], common_endings_for_string_input[index])))
         # todo: Kevin Spacey's Capsule
-        return str(line[0]), int(line[1]), str(line[2]), float(line[3]), float(line[4])
+
+        try:
+            return str(line[0]), int(line[1]), str(line[2]), float(line[3]), float(line[4])
+        except ValueError:
+            print("One of the following is not the right format"
+                  "line[0] (str)-> {}\n"
+                  "line[1] (int)-> {}\n"
+                  "line[2] (str)-> {}\n"
+                  "line[3] (float)-> {}\n"
+                  "line[4] (float) -> {}".format(*line))
+        except IndexError:
+            print("Error: you need to have 5 tab-delimited sections of input!")
 
     def get_fit(self) -> list:
         # Get fit from file
@@ -73,6 +84,7 @@ class hangar_item:
 class storage_area:
     def __init__(self, file: dict = None, is_hangar=None):
         self.date_updated = datetime.datetime.now()
+        self.update_date_updated()
         self.contained_items = []
         self.name = ""
         self.is_hangar = None
@@ -85,6 +97,9 @@ class storage_area:
                 self.contained_items.append(hangar_item(file_data=item))
             return
 
+        self.make_new_hangar_from_user()
+
+    def make_new_hangar_from_user(self):
         while True:
             if not self.is_hangar:
                 self.is_hangar = input("Is it a hangar? Y/N ?> ")
@@ -96,10 +111,8 @@ class storage_area:
                 break
             else:
                 print("Error - must be Y/N")
-
         self.name = input("Name of storage area, if container, make sure you name it according to the \n"
                           "container, case sensitive!\n ?> ")
-
         self.input_hangar_items()
 
     def get_number_of_contained_items(self):
@@ -136,7 +149,8 @@ class storage_area:
         return
 
     def update_date_updated(self):
-        self.date_updated = datetime.datetime.now()
+        self.date_updated = datetime.datetime.now().strftime("%Y.%m.%d@%H%M")
+
 
 
 class config_file_c:
@@ -436,7 +450,7 @@ class test_free_inventory:
                     item_list[countcount] = item_list[countcount].__dict__
 
             with open('./stations/{}.stn'.format(station.station), 'w') as outfile:
-                json.dump(jsonjson, outfile)
+                json.dump(jsonjson, outfile, indent=4, sort_keys=True)
 
     @method_is_menu_function
     def create_new_station_hangar(self):
