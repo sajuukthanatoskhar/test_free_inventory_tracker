@@ -152,7 +152,6 @@ class storage_area:
         self.date_updated = datetime.datetime.now().strftime("%Y.%m.%d@%H%M")
 
 
-
 class config_file_c:
     def __init__(self, data):
         if len(data) != 2:
@@ -239,16 +238,6 @@ class test_free_station:
         Update Config
         :return: None
         """
-        # choice_not_made = True
-        #
-        # while choice_not_made:
-        #     for index in range(0, len(self.hangars)):
-        #         print("{}. {}".format(index, self.hangars[index]))
-        #     choice: int
-        #     choice = int(input("which hangar is being updated? (0, {}) \n >$ ".format(len(self.hangars))))
-        #     if choice in range(0, len(self.hangars)):
-        #         choice_not_made = False
-
         choice_not_made: bool = True
         choice = None
         while choice_not_made:
@@ -324,15 +313,24 @@ class test_free_inventory:
                 station.config.Global_Fitting_Multiplier))
             print("Global Material Modifier : {}\n".format(
                 station.config.Global_Material_Multiplier))
+            print("Required Fits to be printed here")  # todo: print required fits and numbers here
         return
 
     @method_is_menu_function
-    def update_fit(self, fit_exists=True) -> str:
-        """Update fits"""
+    def update_fit(self, fit_exists: bool = True) -> str:
+        """Update fits
+        :type fit_exists: bool : when fit exists, this will be true
+        :returns string of fit name
+        """
         lines = easygui.textbox(msg="Input the copy paste of the fit.  Must be EFT format.\nDon't fuck it up").split(
             '\n')
         fit_translator.make_fit_file(lines)
-        return fit_translator.new_get_fit_name(lines)
+        try:
+            name = fit_translator.new_get_fit_name(lines)
+        except IndexError as e:
+            print("Error: You need to give a fit before clicking ok!")
+            name = self.update_fit(fit_exists=fit_exists)
+        return name
 
     @method_is_menu_function
     def update_required_fits(self, fit_name=None):
@@ -343,9 +341,12 @@ class test_free_inventory:
             print("Fit name is {}".format(fit_name))
         else:
             print("What is fit name?")
-            fit_choices = [fit for fit in station.fits_required.keys()]
-            fit_name = easygui.choicebox(msg="What is the fit name?", choices=fit_choices)
-
+            fit_choices = ["{}:{}".format(fit, qty) for fit, qty in station.fits_required.items()]
+            try:
+                fit_name = easygui.choicebox(msg="What is the fit name?", choices=fit_choices)
+            except ValueError:
+                fit_name = fit_choices[0]
+        fit_name = fit_name.split(":")[0]  # to get rid of the fit:qty string we have created
         new_qty = -1
         while type(new_qty) == int and new_qty <= -1:
             new_qty = int(input(
@@ -358,6 +359,12 @@ class test_free_inventory:
         #     msg="Input the copy paste of the fit.  Must be EFT format").split('\n')
         # for line in lines:
         #     self.contained_items.append(hangar_item(copy_paste_data=line))
+
+    @method_is_menu_function
+    def rename_fit(self, fit_name=None):
+        """Renames  fits
+        fit_name: """
+        pass
 
     @method_is_menu_function
     def create_new_fit(self) -> None:
