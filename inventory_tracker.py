@@ -33,7 +33,6 @@ class hangar_item:
     """
     Hangar item in a hangar or container
     """
-
     def __init__(self, copy_paste_data=None, file_data=None):
         if copy_paste_data:
             self.name, self.quantity, self.category, self.volume, self.value = self.populate_data(copy_paste_data)
@@ -180,7 +179,8 @@ class test_free_station:
         self.hangars = []
         self.parse_hangars(data['hangars'])
         self.fits_required: dict
-        self.fits_required = data.get('fits_required', {})
+        self.fits_required = {key : 0 for key in fit_translator.get_all_fits_as_list_str()}
+        self.fits_required.update(data.get('fits_required', {}))
         if len(self.hangars) < 1:
             self.hangars.append(storage_area())
 
